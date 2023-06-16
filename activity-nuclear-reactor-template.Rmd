@@ -1,6 +1,6 @@
 ---
 title: "Activity: Nuclear Reactors"
-author: "YOUR NAME HERE"
+author: "Tsu-yen Su"
 output: html_notebook
 ---
 
@@ -12,7 +12,13 @@ library(tidyverse)
 ## Scrape the Data 
 
 ```{r}
-#My code here.... 
+library(rvest)
+
+page <- "https://en.wikipedia.org/wiki/List_of_commercial_nuclear_reactors"
+tableList <- page %>%
+  read_html() %>%
+  html_nodes(css= "table") %>%
+  html_table(fill = TRUE)
 
 
 ```
@@ -20,14 +26,29 @@ library(tidyverse)
 
 ## Your turn: In what ways is the table tidy? How is it not tidy? What’s different about it from a tidy table?
 
-My answer here..... 
+The table is tidy because each cell has its own value.
 
 
 ## Your Turn: Plot Net Generation Capacity vs Construction Date
 
 ```{r}
-#my code here 
-
+tableList[[21]][ ,1:9]
+Japan <-
+  tableList[[21]][ ,1:9] %>%
+  filter(row_number() > 1) %>%
+  rename(name = Plantname, 
+         reactor = UnitNo.,
+         model = Type,
+         status = Status, 
+         netMW = `Capacity(MW)`,
+         construction = Beginbuilding,
+         operation = Commercialoperation, 
+         closure = Closed) %>%
+mutate(construction = dmy(construction),
+         operation = dmy(operation),
+         closure = dmy(closure),
+         netMW = as.numeric(netMW),
+         country = "Japan")
 
 ```
 
@@ -35,8 +56,34 @@ My answer here.....
 ## Your Turn: Scrape & Clean China Data (then merge with Japan)
 
 ```{r}
-#my code here... 
+tableList[[10]][ ,1:9]
+China <-
+  tableList[[10]][ ,1:9] %>%
+  filter(row_number() > 1) %>%
+  rename(name = Plantname, 
+         reactor = UnitNo.,
+         model = Type,
+         status = Status, 
+         netMW = `Capacity(MW)`,
+         construction = Beginbuilding,
+         operation = Commercialoperation, 
+         closure = Closed) %>%
+  mutate(construction = dmy(construction),
+         operation = dmy(operation),
+         closure = dmy(closure),
+         netMW = as.numeric(netMW),
+         country = "China")
 
+combined_data <- bind_rows(Japan, China)
+
+ggplot(combined_data, aes(x = construction, xend= operation, y=name,yend=name, color = model)) +
+  geom_segment() +
+  geom_point(aes(y=name,x=closure,shape= status)) +
+  labs(title = "Net Generation Capacity vs. Date of Construction",
+       x = "Dat",
+       y = "Net Generation Capacity (MW)",
+       color = "Reactor Type")
+library(ggplot2)
 ```
 
 
@@ -44,6 +91,6 @@ My answer here.....
 ## Your Turn: Reconstruct Info Graphic of Japan Reactors (or other country of interest)
 
 ```{r}
-#My code here
+
 
 ```

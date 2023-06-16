@@ -1,7 +1,7 @@
 ---
 title: "Activity: Nuclear Reactors"
 author: "Tsu-yen Su"
-output: html_notebook
+output: html_noteboo
 ---
 
 ```{r}
